@@ -42,7 +42,7 @@
                 target_port: 53
                 node_port: 53
               - name: udp-dns
-                protocol: UDP
+                protocol: 
                 port: 53
                 target_port: 53
                 node_port: 53
@@ -67,20 +67,20 @@
     k8s_manifests_dir: "/etc/kubernetes/manifests"
 
   tasks:
-    - name: Create Pi-hole YAML file
-      template:
-        src: templates/pihole_pod.yaml.j2
-        dest: "pihole_pod.yaml"
+  - name: Create Pi-hole YAML file
+    template:
+      src: templates/pihole_pod.yaml.j2
+      dest: "pihole_pod.yaml"
 
-    - name: Copy YAML file to Kubernetes manifests directory
-      copy:
-        src: "pihole_pod.yaml"
-        dest: "{{ k8s_manifests_dir }}/pihole_pod.yaml"
+  - name: Copy YAML file to Kubernetes manifests directory
+    copy:
+      src: "pihole_pod.yaml"
+      dest: "{{ k8s_manifests_dir }}/pihole_pod.yaml"
   
   - name: Wait for first pihole to be online
-      wait_for:
-        host: "{{ groups['piholes'][0] }}"  # Use the first node in the 'piholes' group
-        port: 53
-        state: started
-        delay: 10
-        timeout: 300
+    wait_for:
+      host: "{{ groups['piholes'][0] }}"  # Use the first node in the 'piholes' group
+      port: 53
+      state: started
+      delay: 10
+      timeout: 300
