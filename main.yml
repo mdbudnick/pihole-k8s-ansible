@@ -1,0 +1,22 @@
+---
+- name: Create Pihole Directories and Set Permissions
+  hosts: piholes
+  become: true
+
+  tasks:
+    - name: Create directories
+      file:
+        path: "/data/pihole/{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - etc
+        - dnsmasq.d
+
+    - name: Set permissions
+      file:
+        path: "/data/pihole/{{ item }}"
+        mode: '0644'
+      with_items:
+        - etc
+        - dnsmasq.d
