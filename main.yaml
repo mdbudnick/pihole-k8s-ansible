@@ -1,0 +1,116 @@
+---
+- name: Create PiHole Directories and Set Permissions
+  hosts: piholes
+  become: true
+
+  tasks:
+    - name: Create directories
+      file:
+        path: "/data/pihole/{{ item }}"
+        state: directory
+        mode: '0755'
+      with_items:
+        - etc
+        - dnsmasq.d
+
+    - name: Set permissions
+      file:
+        path: "/data/pihole/{{ item }}"
+        mode: '0644'
+      with_items:
+        - etc
+        - dnsmasq.d
+
+- name: Create PiHole manifest pod from template
+  hosts: local
+  become: false
+
+  vars:
+    TZ: "America/New_York"
+    WEBPASSWORD: "{{ lookup('env', 'PIHOLE_PASSWORD') | default('piholeadmin') }}"
+    image: "pihole/pihole:2024.01.0"
+
+  tasks:
+  - name: Create PiHole YAML file
+    template:
+      src: pihole.yaml.j2
+      dest: "/tmp/pihole_pod.yaml"
+
+- name: Copy YAML file to Kubernetes manifests directory
+  hosts: piholes
+  become: true
+  vars:
+    k8s_manifests_dir: "/etc/kubernetes/manifests"
+  tasks:
+  - copy:
+      src: "/tmp/pihole_pod.yaml"
+      dest: "{{ k8s_manifests_dir }}/pihole_pod.yaml"
+
+- name: Create PiHole Kubernetes Service
+  hosts: local
+
+  tasks:
+    - name: install pre-requisites
+      pip:
+        name:
+          - kubernetes
+    - name: Create DNS NodePort Service TCP
+      kubernetes.core.k8s_service:
+        state: present
+        name: pihole-service-tcp
+        namespace: pihole
+        resource_definition:
+          spec:
+            selector:
+              app: pihole
+            type: NodePort
+            ports:
+              - name: tcp-dns
+                protocol: TCP
+                port: 53
+                node_port: 53
+    - name: Create DNS NodePort Service UDP
+      kubernetes.core.k8s_service:
+        state: present
+        name: pihole-service-udp
+        namespace: pihole
+        resource_definition:
+          spec:
+            selector:
+              app: pihole
+            type: NodePort
+            ports:
+              - name: udp-dns
+                protocol: UDP
+                port: 53
+                node_port: 53
+    - name: Create HTTP PiHole console NodePort Service
+      kubernetes.core.k8s_service:
+        state: present
+        name: pihole-service-http
+        namespace: pihole
+        resource_definition:
+          spec:
+            selector:
+              app: pihole
+            type: NodePort
+            ports:
+              - name: http-pihole
+                protocol: UDP
+                port: 80
+                node_port: 80
+    - name: Create HTTPS PiHole console NodePort Service
+      kubernetes.core.k8s_service:
+        state: present
+        name: pihole-service-https
+        namespace: pihole
+        resource_definition:
+          spec:
+            selector:
+              app: pihole
+            type: NodePort
+            ports:
+              - name: https-pihole
+                protocol: TCP
+                port: 443
+                node_port: 8443
