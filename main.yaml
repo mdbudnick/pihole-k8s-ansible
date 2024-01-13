@@ -20,6 +20,12 @@
       with_items:
         - etc
         - dnsmasq.d
+    
+    - name: Stop systemd-resolved service on port 53
+      systemd:
+        name: systemd-resolved
+        state: stopped
+        enabled: no
 
 - name: Create PiHole manifest pod from template
   hosts: local
