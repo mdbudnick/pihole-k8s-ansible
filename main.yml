@@ -21,6 +21,27 @@
         - etc
         - dnsmasq.d
 
+- name: Create Pi-hole Kubernetes Service
+  hosts: piholes
+  become: false
+
+  tasks:
+    - name: Create NodePort Service
+      k8s:
+        api_version: v1
+        kind: Service
+        name: pihole-service
+        namespace: pihole
+        spec:
+          selector:
+            app: pihole
+          ports:
+            - name: dns
+              protocol: TCP
+              port: 53
+              target_port: 53
+              node_port: 53
+
 - name: Deploy Pi-hole Kubernetes Pods
   hosts: piholes
   become: false
