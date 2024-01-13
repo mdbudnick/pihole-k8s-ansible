@@ -24,6 +24,8 @@ spec:
       image: {{ image }}
       imagePullPolicy: IfNotPresent
       env:
+        - name: PIHOLE_UID
+          value: "0"
         - name: TZ
           value: "{{ TZ }}"
         - name: WEBPASSWORD
