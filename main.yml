@@ -71,3 +71,11 @@
       copy:
         src: "pihole_pod.yaml"
         dest: "{{ k8s_manifests_dir }}/pihole_pod.yaml"
+  
+  - name: Wait for first pihole to be online
+      wait_for:
+        host: "{{ groups['piholes'][0] }}"  # Use the first node in the 'piholes' group
+        port: 53
+        state: started
+        delay: 10
+        timeout: 300
