@@ -4,6 +4,11 @@
   become: true
 
   tasks:
+    - name: Remove /data/pihole/ directory
+      file:
+        path: /data/pihole/
+        state: absent
+
     - name: Create directories
       file:
         path: "/data/pihole/{{ item }}"
