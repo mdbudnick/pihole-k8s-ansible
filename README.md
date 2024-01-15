@@ -29,7 +29,7 @@ This Ansible playbook configures a PiHole server on each member of the "piholes"
 4. Run the Ansible playbook:
 
    ```bash
-   ansible-playbook -i inventory.ini main.yml
+   ansible-playbook -i inventory.ini main.yml -K
    ```
 
 5. Setup your Network or Device DNS to use the IP addresses of the hosts in the "piholes" group.
