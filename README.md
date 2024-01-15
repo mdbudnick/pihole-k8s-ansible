@@ -1,5 +1,7 @@
 # PiHole Kubernetes Ansible Configuration
 
+![Running PiHole Server UI](screenshot-cropped.png)
+
 This Ansible playbook configures a PiHole server on each member of the "piholes" group in the inventory. The servers are deployed on Kubernetes, which must be previously configured, and exposed on port 53 using NodePort.
 
 ## Prerequisites
